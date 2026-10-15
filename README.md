@@ -1,4 +1,4 @@
-# omarchy-dock
+# omarchydock
 
 A macOS-style dock for [Omarchy](https://omarchy.org) / Hyprland, built with [Quickshell](https://quickshell.org).
 
@@ -12,8 +12,8 @@ A macOS-style dock for [Omarchy](https://omarchy.org) / Hyprland, built with [Qu
 
 ## Install
 ```bash
-git clone https://github.com/<you>/omarchy-dock
-cd omarchy-dock
+git clone https://github.com/krika2810/omarchydock
+cd omarchydock
 ./install.sh
 quickshell -p ~/.config/quickshell/dock/shell.qml
 ```
