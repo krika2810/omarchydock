@@ -1,5 +1,7 @@
 # omarchydock
 
+![omarchydock screenshot](docs/screenshot.png)
+
 A macOS-style dock for [Omarchy](https://omarchy.org) / Hyprland, built with [Quickshell](https://quickshell.org).
 
 ## Features
