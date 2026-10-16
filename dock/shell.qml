@@ -56,6 +56,28 @@ ShellRoot {
         }
     }
 
+    // Auto-hide: the dock slides off-screen and reappears when the pointer touches the bottom edge.
+    property bool autoHide: false
+
+    function setAutoHide(v) {
+        autoHide = v;
+        hideStore.setText(v ? "1" : "0");
+    }
+
+    FileView {
+        id: hideStore
+        path: Quickshell.env("HOME") + "/.config/quickshell/dock/autohide.txt"
+        printErrors: false
+        onLoaded: root.autoHide = text().trim() === "1"
+    }
+
+    // qs ipc -p ~/.config/quickshell/dock/shell.qml call dock toggleAutoHide
+    IpcHandler {
+        target: "dock"
+        function toggleAutoHide(): void { root.setAutoHide(!root.autoHide); }
+        function setAutoHide(on: bool): void { root.setAutoHide(on); }
+    }
+
     // Build model: pinned first, then running apps that aren't pinned.
     property var items: {
         const tops = ToplevelManager.toplevels.values;
@@ -105,6 +127,30 @@ ShellRoot {
             WlrLayershell.namespace: "dock"
             color: "transparent"
 
+            // Auto-hide state. `shown` lags hover by a short delay so brushing past the edge doesn't flicker.
+            property bool shown: true
+            property real slide: (!root.autoHide || shown) ? 1 : 0
+            Behavior on slide {
+                NumberAnimation { duration: 220; easing.type: Easing.OutCubic }
+            }
+            function updateShown() {
+                if (!root.autoHide || hov.hovered || menu.visible) {
+                    hideTimer.stop();
+                    shown = true;
+                } else {
+                    hideTimer.restart();
+                }
+            }
+            Timer {
+                id: hideTimer
+                interval: 350
+                onTriggered: win.shown = false
+            }
+            Connections {
+                target: root
+                function onAutoHideChanged() { win.updateShown(); }
+            }
+
             // Only the dock strip receives input; the rest of the window is click-through.
             mask: Region { item: hit }
 
@@ -151,7 +197,8 @@ ShellRoot {
             Item {
                 id: hit
                 width: win.baseTotal + root.maxSize
-                height: root.maxSize + 40
+                // While hidden, only a thin strip at the bottom edge is live, to reveal the dock.
+                height: win.slide > 0.01 ? root.maxSize + 40 : 2
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.bottom: parent.bottom
             }
@@ -167,6 +214,7 @@ ShellRoot {
                     id: hov
                     parent: win.contentItem
                     onPointChanged: area.mx = point.position.x
+                    onHoveredChanged: win.updateShown()
                 }
             }
 
@@ -192,12 +240,14 @@ ShellRoot {
                     const isPinned = root.pinned.includes(d.entry.id);
                     out.push({ label: isPinned ? "Remove from Dock" : "Keep in Dock", run: () => root.togglePin(d.entry.id) });
                 }
+                out.push({ label: root.autoHide ? "Always Show Dock" : "Hide Dock Automatically", run: () => root.setAutoHide(!root.autoHide) });
                 return out;
             }
 
             PopupWindow {
                 id: menu
                 visible: false
+                onVisibleChanged: win.updateShown()
                 color: "transparent"
                 anchor.edges: Edges.Top
                 anchor.gravity: Edges.Top
@@ -268,7 +318,7 @@ ShellRoot {
                 id: pill
                 x: win.rowX - root.pad
                 anchors.bottom: parent.bottom
-                anchors.bottomMargin: 8
+                anchors.bottomMargin: 8 - (1 - win.slide) * (height + 12)
                 height: root.baseSize + root.pad * 2
                 width: win.total + root.pad * 2
                 radius: 20
