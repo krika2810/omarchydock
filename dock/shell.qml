@@ -39,7 +39,7 @@ ShellRoot {
 
     // Icon size; resized by dragging the handle on the dock's right edge, and persisted.
     property int baseSize: 48
-    readonly property int minBase: 32
+    readonly property int minBase: 16
     readonly property int maxBase: 96
     readonly property int maxSize: Math.round(baseSize * 1.75)
     readonly property int spacing: Math.round(baseSize / 6)
