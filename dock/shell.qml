@@ -299,7 +299,9 @@ ShellRoot {
                                     id: item
                                     anchors.fill: parent
                                     hoverEnabled: true
-                                    onClicked: { parent.modelData.run(); menu.visible = false; }
+                                    // Close first: some actions (pin, auto-hide) rebuild the entries and
+                                    // destroy this row, which would otherwise skip the close.
+                                    onClicked: { const run = parent.modelData.run; menu.visible = false; run(); }
                                 }
                             }
                         }
