@@ -435,6 +435,14 @@ ShellRoot {
                                     d.entry.execute();
                                 }
                             }
+                            // Double-click: focus the app's window and toggle it to fill the screen.
+                            onDoubleClicked: mouse => {
+                                const d = cell.modelData;
+                                if (mouse.button === Qt.LeftButton && d.wins.length > 0) {
+                                    d.wins[0].activate();
+                                    Hyprland.dispatch("hl.dsp.window.fullscreen({ mode = \"maximized\", action = \"toggle\" })");
+                                }
+                            }
                         }
                     }
                 }
