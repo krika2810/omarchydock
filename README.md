@@ -1,6 +1,8 @@
 # omarchydock
 
-![omarchydock screenshot](docs/screenshot.png)
+![omarchydock demo: hover magnification, drag to resize, auto-hide](docs/demo.gif)
+
+[Full-quality video](docs/demo.mp4) · [Screenshot](docs/screenshot.png)
 
 A macOS-style dock for [Omarchy](https://omarchy.org) / Hyprland, built with [Quickshell](https://quickshell.org).
 
